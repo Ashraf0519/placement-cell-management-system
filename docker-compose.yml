@@ -1,0 +1,25 @@
+services:
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]          # lets MongoDB Compass connect from your laptop
+    volumes: [mongo-data:/data/db]
+  web:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017/placement_cell
+      JWT_SECRET: change-this-to-a-long-random-string
+      ADMIN_EMAIL: admin@placement.com
+      ADMIN_PASSWORD: Admin@123
+    depends_on: [mongo]
+  db-viewer:                         # web page to browse the database
+    image: mongo-express:1.0.2
+    ports: ["8081:8081"]
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    depends_on: [mongo]
+    restart: on-failure
+volumes:
+  mongo-data:
